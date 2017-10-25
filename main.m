@@ -143,7 +143,7 @@ for curStep = 1:nRuns
         vehicleDataEff(:,4)=(vehicleDataEff(:,4)-min(lonNet))/(max(lonNet) - min(lonNet));
         vehicleDataEff(:,3)=(vehicleDataEff(:,3)-min(latNet))/(max(latNet) - min(latNet));        
         clear nearPos;
-        for i = 1:length(vehicleDataEff)    
+        for i = 1:size(vehicleDataEff,1)  
             [~,nearPos(i)] = nearestPntDist([vehicleDataEff(i,4) vehicleDataEff(i,3)],[qx(:),qy(:)]);
         end
 

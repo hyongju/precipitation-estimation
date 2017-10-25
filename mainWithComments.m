@@ -4,13 +4,17 @@ clear all;close all;clc
 %% 
 
 nsampInfo = 100;    % number of information sample
-dSamp = 8;          % down-sample, e.g., 1/8, smaller the value, the more accurate
+dSamp = 20;          % down-sample, e.g., 1/8, smaller the value, the more accurate
 
 varInfo = 0.01;     % how noisy the sensor is (e.g., 0: perfect) default 0.01....
 varPos = 0.01;     % decay as the distance between the windshield wiper measurement and the source of rain, increases...
 weight = 0.9;		% weight on prior (e.g., if weight=1, it forgets about the prior measurements and only consider the new radar measurement, default: 0.9)
 
 vehicleData = csvread('./data/20140811_vehicle_filtered.csv');
+allVehicleID = unique(vehicleData(:,1))';
+numExcludedVehicles = 3;
+excludedVehicleID = allVehicleID(1,randsample(1:length(allVehicleID),numExcludedVehicles));
+
 
 % addpath(genpath('./gpml-matlab-v3.6-2015-07-07/'))
 
@@ -152,7 +156,7 @@ for curStep = 1:nRuns
         vehicleDataEff(:,3)=(vehicleDataEff(:,3)-min(latNet))/(max(latNet) - min(latNet));        
 		% find the closest points from the downsampled map to vehicle locations
         clear nearPos;
-        for i = 1:length(vehicleDataEff)    
+        for i = 1:size(vehicleDataEff,1)  
             [~,nearPos(i)] = nearestPntDist([vehicleDataEff(i,4) vehicleDataEff(i,3)],[qx(:),qy(:)]);
         end
 
@@ -171,10 +175,13 @@ for curStep = 1:nRuns
 
 			% for each vehicle (with different IDs)
             for j = 1:length(vehicleID)
-				% take median of the windshield-wiper measurements made by each vehicle
-                if ~isempty(find(nearPosUniqWiper{i,2}==vehicleID(j)))
-                    k = k+1;
-                    nearPosMed(k,:) = [nearPosUniq(i) vehicleID(j) min(median(nearPosUniqWiper{i,1}(find(nearPosUniqWiper{i,2}==vehicleID(j)),:)),2)];
+                % if the vehicle is not excluded from the experiment...
+                if ~ismember(vehicleID(j),excludedVehicleID)
+                    % take median of the windshield-wiper measurements made by each vehicle
+                    if ~isempty(find(nearPosUniqWiper{i,2}==vehicleID(j)))
+                        k = k+1;
+                        nearPosMed(k,:) = [nearPosUniq(i) vehicleID(j) min(median(nearPosUniqWiper{i,1}(find(nearPosUniqWiper{i,2}==vehicleID(j)),:)),2)];
+                    end
                 end
             end
         end
