@@ -132,7 +132,8 @@ for curStep = 1:nRuns
         end
         M(:,2) = lvec;
         % normalize
-        M(:,3) = radarTSeries{curStep}(:)/max(radarTSeries{curStep}(:));
+%         M(:,3) = radarTSeries{curStep}(:)/max(radarTSeries{curStep}(:));
+        M(:,3) = radarTSeries{curStep}(:)/max(max(max(radarData)));
         [qx,qy,qz] = drawNoFigure(M,radarTSeries{curStep},dSamp);
         clear M;
         M = [qx(:) qy(:) qz(:)];
